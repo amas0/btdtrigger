@@ -1,13 +1,13 @@
-import itertools as it
 import os
-import re
 import shlex
 import subprocess
 import time
-import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
+
+import config_parser
+from models import BluetoothDevice, Trigger
 
 
 @dataclass
@@ -43,19 +43,6 @@ class ScanLine:
         status = cls.validate_status(status)
         dtype = cls.validate_device_type(dtype)
         return cls(status, dtype, mac, " ".join(data))
-
-
-@dataclass
-class BluetoothDevice:
-    mac_address: str
-    name: str
-
-
-@dataclass
-class Trigger:
-    mac_address: str
-    on: Literal["NEW", "DEL"]
-    command: str
 
 
 @dataclass
@@ -123,7 +110,7 @@ class BluetoothDeviceListener:
 
     def run_triggers(self, mac_address: str, status: Literal["NEW", "DEL"]):
         for trigger in self.triggers:
-            if (trigger.mac_address == mac_address) and (trigger.on == status):
+            if trigger.is_match(mac_address, status):
                 subprocess.run(shlex.split(trigger.command))
 
     def listen(self, print_devices: bool = False, run_triggers: bool = False):
@@ -146,29 +133,5 @@ class BluetoothDeviceListener:
                 if run_triggers:
                     self.run_triggers(bd.mac_address, status)
 
-    @staticmethod
-    def is_valid_mac_address(address: str) -> bool:
-        pattern = r"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-        return re.fullmatch(pattern, address) is not None
-
     def load_triggers_from_config(self, config_file: Path):
-        def listify(el: str | list[str]) -> list[str]:
-            return [el] if isinstance(el, str) else el
-
-        with open(config_file, "rb") as f:
-            config = tomllib.load(f)
-        triggers = []
-        for trigger in config["triggers"]:
-            devices = listify(trigger["device"])
-            ons = listify(trigger["on"])
-            for device, on in it.product(devices, ons):
-                if not self.is_valid_mac_address(device):
-                    raise ValueError(f"Invalid MAC address {device} in triggers")
-                if on not in ("NEW", "DEL"):
-                    raise ValueError(
-                        f"Invalid trigger on clause {on}. Must be either NEW or DEL"
-                    )
-                triggers.append(
-                    Trigger(mac_address=device, on=on, command=trigger["command"])
-                )
-        self.triggers.extend(triggers)
+        self.triggers.extend(config_parser.parse_triggers_from_config(config_file))
