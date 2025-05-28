@@ -24,3 +24,10 @@ class Trigger:
                 return False
         else:
             return False
+
+    def process_command_templates(
+        self, mac_address: str, status: Literal["NEW", "DEL"]
+    ) -> str:
+        return self.command.replace("%address%", mac_address).replace(
+            "%status%", status
+        )

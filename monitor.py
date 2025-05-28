@@ -111,7 +111,9 @@ class BluetoothDeviceListener:
     def run_triggers(self, mac_address: str, status: Literal["NEW", "DEL"]):
         for trigger in self.triggers:
             if trigger.is_match(mac_address, status):
-                subprocess.run(shlex.split(trigger.command))
+                subprocess.run(
+                    shlex.split(trigger.process_command_templates(mac_address, status))
+                )
 
     def listen(self, print_devices: bool = False, run_triggers: bool = False):
         while True:
