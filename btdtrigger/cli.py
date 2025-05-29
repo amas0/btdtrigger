@@ -3,8 +3,8 @@ from typing import Annotated
 
 import typer
 
-from models import Trigger
-from monitor import BluetoothDeviceListener
+from btdtrigger.models import Trigger
+from btdtrigger.monitor import BluetoothDeviceListener
 
 app = typer.Typer()
 

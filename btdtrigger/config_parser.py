@@ -3,7 +3,7 @@ import re
 import tomllib
 from pathlib import Path
 
-from models import Trigger
+from btdtrigger.models import Trigger
 
 
 def is_valid_regex_pattern(pattern: str) -> bool:

@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
-import config_parser
-from models import BluetoothDevice, Trigger
+import btdtrigger.config_parser as config_parser
+from btdtrigger.models import BluetoothDevice, Trigger
 
 
 @dataclass
