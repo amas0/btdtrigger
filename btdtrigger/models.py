@@ -26,8 +26,11 @@ class Trigger:
             return False
 
     def process_command_templates(
-        self, mac_address: str, status: Literal["NEW", "DEL"]
+        self, device: BluetoothDevice, status: Literal["NEW", "DEL"]
     ) -> str:
-        return self.command.replace("%address%", mac_address).replace(
-            "%status%", status
+        templated = (
+            self.command.replace("%address%", device.mac_address)
+            .replace("%status%", status)
+            .replace("%name%", device.name)
         )
+        return templated

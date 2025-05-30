@@ -108,11 +108,11 @@ class BluetoothDeviceListener:
                 continue
         raise ValueError("Unable to read scan line")
 
-    def run_triggers(self, mac_address: str, status: Literal["NEW", "DEL"]):
+    def run_triggers(self, device: BluetoothDevice, status: Literal["NEW", "DEL"]):
         for trigger in self.triggers:
-            if trigger.is_match(mac_address, status):
+            if trigger.is_match(device.mac_address, status):
                 subprocess.run(
-                    shlex.split(trigger.process_command_templates(mac_address, status))
+                    shlex.split(trigger.process_command_templates(device, status))
                 )
 
     def listen(self):
@@ -130,7 +130,7 @@ class BluetoothDeviceListener:
                 self.active_devices.remove_device(bd)
                 changed = True
             if changed:
-                self.run_triggers(bd.mac_address, status)
+                self.run_triggers(bd, status)
 
     def load_triggers_from_config(self, config_file: Path):
         self.triggers.extend(config_parser.parse_triggers_from_config(config_file))
