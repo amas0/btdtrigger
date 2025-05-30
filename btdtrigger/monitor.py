@@ -12,6 +12,8 @@ from btdtrigger.models import BluetoothDevice, Trigger
 
 @dataclass
 class ScanLine:
+    """Class to capture parsed output of `bluetoothctl`'s scan"""
+
     status: Literal["NEW", "CHG", "DEL"]
     device_type: Literal["Device", "Controller"]
     mac_address: str
@@ -64,7 +66,14 @@ class ActiveDevices:
 
 
 class BluetoothDeviceListener:
+    """This class listens to a scan of nearby Bluetooth devices
+    via a `bluetoothctl` subprocess, keeps track of "active"
+    Bluetooth devices, and runs commands that are defined as
+    triggers on the seen Bluetooth devices"""
+
     def __init__(self, triggers: list[Trigger] | None = None):
+        """Creates a listener to Bluetooth devices with the provided
+        defined triggers."""
         self.process = None
         self.running = False
         self.active_devices = ActiveDevices()
@@ -74,6 +83,7 @@ class BluetoothDeviceListener:
             self.triggers = []
 
     def start(self):
+        """Starts the `bluetoothctl` scan if not running"""
         if not self.running:
             self.process = subprocess.Popen(
                 ["bluetoothctl", "--timeout", "-1", "scan", "on"],
@@ -84,11 +94,15 @@ class BluetoothDeviceListener:
             self.running = True
 
     def stop(self):
+        """Stops the `bluetoothctl` scan if it is running and the
+        proess is active"""
         if self.running and self.process and self.process.poll() is None:
             self.process.kill()
             self.running = False
 
     def get_raw_line(self, sleep_ms: int = 5) -> str:
+        """Returns the next line from the `bluetoothctl` scan, will
+        wait for output."""
         if self.running and self.process and self.process.stdout is not None:
             while (line := self.process.stdout.readline()) is None:
                 time.sleep(sleep_ms / 1000)
@@ -97,6 +111,8 @@ class BluetoothDeviceListener:
             raise ChildProcessError("No running monitor process found")
 
     def get_scan_line(self) -> ScanLine:
+        """Listens to the `bluetoothctl` scan and returns the next
+        valid ScanLine"""
         while line := self.get_raw_line():
             if line.startswith("[[0;93mCHG[0m]"):  # CHG
                 return ScanLine.from_raw_line(line)
@@ -109,6 +125,7 @@ class BluetoothDeviceListener:
         raise ValueError("Unable to read scan line")
 
     def run_triggers(self, device: BluetoothDevice, status: Literal["NEW", "DEL"]):
+        """For a given Bluetooth device and status, attempt to run defined triggers"""
         for trigger in self.triggers:
             if trigger.is_match(device.mac_address, status):
                 subprocess.run(
@@ -116,6 +133,8 @@ class BluetoothDeviceListener:
                 )
 
     def listen(self):
+        """Continuously listen to the scan output of `bluetoothctl` and run
+        any matching Triggers if conditions are met"""
         while True:
             changed = False
             sl = self.get_scan_line()
@@ -133,4 +152,5 @@ class BluetoothDeviceListener:
                 self.run_triggers(bd, status)
 
     def load_triggers_from_config(self, config_file: Path):
+        """Loads Triggers into the listener from a provided config file"""
         self.triggers.extend(config_parser.parse_triggers_from_config(config_file))

@@ -15,6 +15,10 @@ def is_valid_regex_pattern(pattern: str) -> bool:
 
 
 def parse_triggers_from_config(config_file: Path) -> list[Trigger]:
+    """Validates and parses defined triggers from a provided config file
+
+    Expected format is a toml file."""
+
     def listify(el: str | list[str]) -> list[str]:
         return [el] if isinstance(el, str) else el
 
