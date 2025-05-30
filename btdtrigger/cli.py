@@ -6,14 +6,14 @@ import typer
 from btdtrigger.models import Trigger
 from btdtrigger.monitor import BluetoothDeviceListener
 
-app = typer.Typer()
+app = typer.Typer(add_completion=False)
 
 CONFIG_DIR = Path.home() / ".config/btdtrigger/"
 CONFIG_FILE_NAME = "config.toml"
 DEFAULT_CONFIG = CONFIG_DIR / CONFIG_FILE_NAME
 
 
-@app.command()
+@app.command(help="Run Bluetooth device triggers based on a config file")
 def run(
     config_file: Annotated[
         Path,
@@ -28,7 +28,7 @@ def run(
     bdl.listen(run_triggers=True)
 
 
-@app.command()
+@app.command(help="Run a single Bluetooth device trigger from command arguments")
 def run_trigger(
     address: Annotated[
         str,
