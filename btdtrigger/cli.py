@@ -23,10 +23,9 @@ def run(
         ),
     ] = DEFAULT_CONFIG,
 ):
-    bdl = BluetoothDeviceListener()
-    bdl.load_triggers_from_config(config_file=config_file)
-    bdl.start()
-    bdl.listen()
+    with BluetoothDeviceListener() as bdl:
+        bdl.load_triggers_from_config(config_file=config_file)
+        bdl.listen()
 
 
 @app.command(help="Run a single Bluetooth device trigger from command arguments")
@@ -58,9 +57,8 @@ def run_trigger(
     if status not in ("NEW", "DEL"):
         raise ValueError("Trigger status must be either 'NEW' or 'DEL'")
     trigger = Trigger(mac_address_pattern=address, on=status, command=command)
-    bdl = BluetoothDeviceListener(triggers=[trigger])
-    bdl.start()
-    bdl.listen()
+    with BluetoothDeviceListener(triggers=[trigger]) as bdl:
+        bdl.listen()
 
 
 if __name__ == "__main__":

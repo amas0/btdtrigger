@@ -100,6 +100,13 @@ class BluetoothDeviceListener:
             self.process.kill()
             self.running = False
 
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.stop()
+
     def get_raw_line(self, sleep_ms: int = 5) -> str:
         """Returns the next line from the `bluetoothctl` scan, will
         wait for output."""
