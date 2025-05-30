@@ -115,7 +115,7 @@ class BluetoothDeviceListener:
                     shlex.split(trigger.process_command_templates(mac_address, status))
                 )
 
-    def listen(self, print_devices: bool = False, run_triggers: bool = False):
+    def listen(self):
         while True:
             changed = False
             sl = self.get_scan_line()
@@ -130,10 +130,7 @@ class BluetoothDeviceListener:
                 self.active_devices.remove_device(bd)
                 changed = True
             if changed:
-                if print_devices:
-                    self.active_devices.print()
-                if run_triggers:
-                    self.run_triggers(bd.mac_address, status)
+                self.run_triggers(bd.mac_address, status)
 
     def load_triggers_from_config(self, config_file: Path):
         self.triggers.extend(config_parser.parse_triggers_from_config(config_file))
