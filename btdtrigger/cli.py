@@ -3,6 +3,7 @@ from typing import Annotated
 
 import typer
 
+from btdtrigger.config_parser import is_valid_regex_pattern
 from btdtrigger.models import Trigger
 from btdtrigger.monitor import BluetoothDeviceListener
 
@@ -25,7 +26,7 @@ def run(
     bdl = BluetoothDeviceListener()
     bdl.load_triggers_from_config(config_file=config_file)
     bdl.start()
-    bdl.listen(run_triggers=True)
+    bdl.listen()
 
 
 @app.command(help="Run a single Bluetooth device trigger from command arguments")
@@ -52,12 +53,14 @@ def run_trigger(
         ),
     ],
 ):
+    if not is_valid_regex_pattern(address):
+        raise ValueError("Provided address regex pattern is invalid")
     if status not in ("NEW", "DEL"):
         raise ValueError("Trigger status must be either 'NEW' or 'DEL'")
     trigger = Trigger(mac_address_pattern=address, on=status, command=command)
     bdl = BluetoothDeviceListener(triggers=[trigger])
     bdl.start()
-    bdl.listen(run_triggers=True)
+    bdl.listen()
 
 
 if __name__ == "__main__":
