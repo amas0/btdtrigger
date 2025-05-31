@@ -3,7 +3,33 @@
 Simple Python utility that uses the scan functionality of `bluetoothctl` to
 trigger actions on a Linux machine based on nearby Bluetooth devices.
 
-### Installation
+### Requirements and Installation
+
+This tool assumes your system meets the following requirements:
+
+* `python >= 3.11`
+* Linux
+* `bluetoothctl` is installed (on my Arch system, this is provided by `bluez-utils`)
+* You have a Bluetooth adapter
+
+If those are met, this tool can be installed into a virtual environment with:
+
+```bash
+pip install btdtrigger
+```
+
+An alternative to manually dealing with virtual environments is to 
+use `uv`'s tool interface:
+
+```bash
+uv tool install btdtrigger
+```
+
+Which allows the utility to be used by prepending `uv tool run`:
+
+```bash
+uv tool run btdtrigger --help
+```
 
 ### Usage
 
