@@ -5,7 +5,9 @@ import typer
 
 from btdtrigger.config_parser import is_valid_regex_pattern
 from btdtrigger.models import Trigger
-from btdtrigger.listener import BluetoothDeviceListener app = typer.Typer(add_completion=False)
+from btdtrigger.listener import BluetoothDeviceListener
+
+app = typer.Typer(add_completion=False)
 
 CONFIG_DIR = Path.home() / ".config/btdtrigger/"
 CONFIG_FILE_NAME = "config.toml"
