@@ -39,7 +39,7 @@ class Trigger:
     def is_match(self, mac_address: str, status: Literal["NEW", "DEL"]) -> bool:
         """Returns True if the provided mac address and status match the trigger"""
         if status == self.on:
-            if re.match(self.mac_address_pattern, mac_address):
+            if re.match(self.mac_address_pattern, mac_address, flags=re.IGNORECASE):
                 return True
             else:
                 return False
