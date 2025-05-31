@@ -27,15 +27,19 @@ def parse_triggers_from_config(config_file: Path) -> list[Trigger]:
     triggers = []
     for trigger in config["triggers"]:
         patterns = listify(trigger["device"])
-        ons = listify(trigger["on"])
-        for pattern, on in it.product(patterns, ons):
+        on_statuses = listify(trigger["status"])
+        for pattern, on_status in it.product(patterns, on_statuses):
             if not is_valid_regex_pattern(pattern):
                 raise ValueError(f"Invalid regex pattern {pattern} in triggers")
-            if on not in ("NEW", "DEL"):
+            if on_status not in ("NEW", "DEL"):
                 raise ValueError(
-                    f"Invalid trigger on clause {on}. Must be either NEW or DEL"
+                    f"Invalid trigger on clause {on_status}. Must be either NEW or DEL"
                 )
             triggers.append(
-                Trigger(mac_address_pattern=pattern, on=on, command=trigger["command"])
+                Trigger(
+                    mac_address_pattern=pattern,
+                    on_status=on_status,
+                    command=trigger["command"],
+                )
             )
     return triggers
