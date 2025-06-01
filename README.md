@@ -42,13 +42,13 @@ straightforward, so that is what we have here.
 First, a simple example:
 
 ```bash 
-btdtrigger run-trigger --address 'AA:BB:CC:DD:EE' --status 'NEW' --command 'echo hello world!'
+btdtrigger run-trigger --address 'AA:BB:CC:DD:EE:FF' --status 'NEW' --command 'echo hello world!'
 ```
 
 The above command defines a "trigger" which has two conditions and a command.
 The conditions are a mac address regex pattern and a device status. If those
 conditions are met, the specified command is run. So the above trigger will
-listen for a device with mac address `AA:BB:CC:DD:EE` that has the "NEW"
+listen for a device with mac address `AA:BB:CC:DD:EE:FF` that has the "NEW"
 status, which should happen if that device is powered on and searches for a
 connection. If those conditions are met, "hello world!" should be printed to
 the terminal.
@@ -60,9 +60,9 @@ mac address, `address`, and a specified `status`. The address pattern
 can be any valid regex (and will ignore case). Some examples are:
 
 * `'.*'` - match any address
-* `'AA:BB:CC:DD:EE'` - matches this mac address exactly
+* `'AA:BB:CC:DD:EE:FF'` - matches this mac address exactly
 * `'AA.*'` - matches any mac address starting with `AA`
-* `'AA:BB:CC:DD:EE|11:22:33:44:55'` - matches either of the given mac addresses
+* `'AA:BB:CC:DD:EE:FF|11:22:33:44:55:66'` - matches either of the given mac addresses
 
 The `status` is simpler, it must be one of the following:
 
