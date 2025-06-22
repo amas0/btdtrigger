@@ -2,6 +2,7 @@ import os
 import shlex
 import subprocess
 import time
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
@@ -121,14 +122,22 @@ class BluetoothDeviceListener:
         """Listens to the `bluetoothctl` scan and returns the next
         valid ScanLine"""
         while line := self.get_raw_line():
-            if line.startswith("[[0;93mCHG[0m]"):  # CHG
-                return ScanLine.from_raw_line(line)
-            elif line.startswith("[[0;92mNEW[0m]"):  # NEW
-                return ScanLine.from_raw_line(line)
-            elif line.startswith("[[0;91mDEL[0m]"):  # DEL
-                return ScanLine.from_raw_line(line)
-            else:
+            try:
+                if line.startswith("[[0;93mCHG[0m]"):  # CHG
+                    return ScanLine.from_raw_line(line)
+                elif line.startswith("[[0;92mNEW[0m]"):  # NEW
+                    return ScanLine.from_raw_line(line)
+                elif line.startswith("[[0;91mDEL[0m]"):  # DEL
+                    return ScanLine.from_raw_line(line)
+                else:
+                    continue
+            except ValueError:
+                warnings.warn(
+                    f"Failed attemping to parse scanline from: {line}. Coninuing with next line",
+                    UserWarning,
+                )
                 continue
+
         raise ValueError("Unable to read scan line")
 
     def run_triggers(self, device: BluetoothDevice, status: Literal["NEW", "DEL"]):
